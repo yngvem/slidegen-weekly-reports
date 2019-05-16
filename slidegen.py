@@ -1,4 +1,5 @@
 import csv
+import os
 import argparse
 
 import pptx
@@ -78,15 +79,21 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("csv_file")
     parser.add_argument("output_file")
+    parser.add_argument("-p", "--parent_folder", default=None)
     parser.add_argument("-t", "--template", default="template.pptx")
 
     args = parser.parse_args()
+    csv_file = args.csv_file
+    output_file = args.output_file
+    if args.parent_folder is not None:
+        csv_file = os.path.join(args.parent_folder, csv_file)
+        output_file = os.path.join(args.parent_folder, output_file)
     # Get slide data
-    with open(args.csv_file) as f:
+    with open(csv_file) as f:
         reader = csv.DictReader(f)
         data_rows = [row for row in reader]
         column_names = list(data_rows[0].keys())
 
     pres = pptx.Presentation(args.template)
     pres = generate_presentation(pres, data_rows, column_names)
-    pres.save(args.output_file)
+    pres.save(output_file)
